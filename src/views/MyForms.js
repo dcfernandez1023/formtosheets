@@ -7,7 +7,8 @@ import {
   Form,
   Modal,
   Button,
-  ListGroup
+  ListGroup,
+  Badge
 } from 'react-bootstrap';
 
 import MySpinner from './MySpinner.js';
@@ -86,6 +87,18 @@ const MyForms = (props) => {
                     <Row>
                       <Col xs={8}>
                         {form.title}
+                        {form.isPublished ?
+                          <span>
+                            <Badge style={{marginLeft:" 8px"}} pill bg="success">
+                              Published
+                            </Badge>
+                            <Badge style={{marginLeft:" 8px"}} pill bg="warning">
+                              {form.submitCount} submissions
+                            </Badge>
+                          </span>
+                        :
+                          <div></div>
+                        }
                       </Col>
                       <Col xs={4} style={{textAlign: "right"}}>
                         {form.lastModified == 0 ?

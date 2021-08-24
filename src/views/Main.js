@@ -15,13 +15,15 @@ import {
   Spinner,
   Nav,
   Dropdown,
-  ListGroup
+  ListGroup,
+  Button
 } from 'react-bootstrap';
 
 import Login from './Login.js';
 import MyForms from './MyForms.js';
 import MySpinner from './MySpinner.js';
 import FormBuilder from './FormBuilder.js';
+import PublishedForm from './PublishedForm.js';
 
 const AUTH = require('../firebase/auth.js');
 
@@ -42,27 +44,28 @@ const Main = () => {
 
   return (
     <div>
-      <Navbar bg="light">
+      <Navbar bg="dark" variant="dark">
         <Container fluid>
           <Navbar.Brand href="/">
-            <img
-              src="/form.png"
-              width="30"
-              height="30"
-              style={{marginRight: "5px"}}
-            />
             formtosheets
           </Navbar.Brand>
           <Nav className = "mr-auto">
           </Nav>
           {userInfo === null || userInfo === undefined ?
-            <div></div>
+            <div>
+              <Button variant="light" style={{marginRight: "12px"}}>
+                Try it out
+              </Button>
+              <Button variant="light" onClick={AUTH.googleSignin}>
+                Sign in
+              </Button>
+            </div>
           :
             <Nav>
               <Dropdown>
                 <Dropdown.Toggle
-                  variant = "light"
-                  style = {{margin: "1%", float: "right"}}
+                  variant="light"
+                  style={{margin: "1%", float: "right"}}
                 >
                   👤
                 </Dropdown.Toggle>
@@ -101,10 +104,16 @@ const Main = () => {
         </Container>
       </Navbar>
       <br/>
+      <br/>
       <Router>
         <Switch>
           <Route path="/formBuilder/:formId">
             <FormBuilder
+              userInfo={userInfo}
+            />
+          </Route>
+          <Route path="/:formId">
+            <PublishedForm
               userInfo={userInfo}
             />
           </Route>

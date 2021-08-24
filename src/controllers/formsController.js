@@ -34,6 +34,25 @@ const getForm = (formId, userId, callback) => {
   });
 }
 
+const getPublishedForm = (formId, callback) => {
+  DB.getQueryWithFilter("id", formId, "forms", UTIL.callbackOnError)
+  .onSnapshot(querySnapshot => {
+    var temp = [];
+    for(var i = 0; i < querySnapshot.docs.length; i++) {
+      temp.push(querySnapshot.docs[i].data());
+    }
+    if(temp.length != 1) {
+      callback(null);
+    }
+    else if(!temp[0].isPublished) {
+      callback(null);
+    }
+    else {
+      callback(temp[0]);
+    }
+  });
+}
+
 const createNew = (userId, callback) => {
   var newForm = Object.assign({}, MODEL.form);
   var timestamp = new Date().getTime();
@@ -52,4 +71,4 @@ const deleteForm = (id, callback) => {
   DB.deleteOne(id, "forms", callback, UTIL.callbackOnError);
 }
 
-export { getForms, getForm, createNew, editForm, deleteForm };
+export { getForms, getForm, getPublishedForm, createNew, editForm, deleteForm };

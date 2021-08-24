@@ -46,6 +46,8 @@ const FormBuilder = (props) => {
   const [modalShow, setModalShow] = useState(false);
   const [preview, setPreview] = useState(false);
   const [publishShow, setPublishShow] = useState(false);
+  const [publishSaving, setPublishSaving] = useState(false);
+  const [publishChange, setPublishChange] = useState(false);
 
   useEffect(() => {
     if(props.userInfo === null || props.userInfo === undefined) {
@@ -102,6 +104,22 @@ const FormBuilder = (props) => {
     });
   }
 
+  const savePublishSettings = () => {
+    setPublishSaving(true);
+    setPublishChange(false);
+    var data = copyOfForm === undefined ? form : copyOfForm;
+    if(data.isPublished) {
+      data.publishedUrl = window.location.protocol + '//' + window.location.host + "/" + data.id;
+    }
+    else {
+      data.publishedUrl = "";
+    }
+    console.log(data.publishedUrl);
+    CONTROLLER.editForm(data, (res) => {
+      setPublishSaving(false);
+    });
+  }
+
   const selectElement = (element, e) => {
     if(e.target.type === "button") {
       return;
@@ -114,7 +132,9 @@ const FormBuilder = (props) => {
     }
   }
 
+  // used for the published settings
   const onChangeForm = (e) => {
+    setPublishChange(true);
     var formCopy;
     if(copyOfForm === undefined) {
       formCopy = Object.assign({}, form);
@@ -132,6 +152,10 @@ const FormBuilder = (props) => {
     }
     else {
       formCopy[e.target.name] = e.target.value;
+    }
+    if(e.target.name === "isPublished" && !formCopy.isPublished) {
+      formCopy.isPrivate = false;
+      formCopy.accessKey = "";
     }
     setCopyOfForm(formCopy);
   }
@@ -484,6 +508,21 @@ const FormBuilder = (props) => {
   }
 
   const renderForm = () => {
+    if(form.elements.length == 0) {
+      return (
+        <div style={{marginLeft: "20px"}}>
+          <div style={{marginBottom: "5px"}}> Getting Started: </div>
+          <ul>
+            <li> To edit the title of your form, hover over and click your form's title, {"'" + form.title + "'"} </li>
+            <li> To add elements to your form, click the + dropdown button to the left </li>
+            <li> After adding elements, you can select them by clicking them on the left sidebar, 'Elements' </li>
+            <li> To edit the element you have currently selected, use the right sidebar, 'Element Editor' </li>
+            <li> Every time you make an edit to the form's title or to any element you have added, hit the 'Save' button at the top right to persist your changes </li>
+            <li> To link a Google sheet, preview your form, publish your form (make it public), or delete your form, hit the 'Actions' dropdown button at the top right </li>
+          </ul>
+        </div>
+      );
+    }
     return form.elements.map((metadata, index) => {
       if(metadata.type === "INPUT") {
         return (
@@ -573,12 +612,17 @@ const FormBuilder = (props) => {
     </Tooltip>
   );
 
+  if(form === null || props.userInfo === null) {
+    return (
+      <NotFound />
+    );
+  }
   if(form === undefined) {
     return (
       <MySpinner />
     );
   }
-  if(form === null) {
+  if(form.userId !== props.userInfo.uid) {
     return (
       <NotFound />
     );
@@ -635,27 +679,69 @@ const FormBuilder = (props) => {
                 <option value={true}> Yes </option>
               </Form.Select>
             </Col>
-            {copyOfForm === undefined ? form.isPrivate && form.isPublished : copyOfForm.isPrivate && copyOfForm.isPublished ?
-              <Col>
-                <Form.Label>
-                  Access Key
-                </Form.Label>
-                <Form.Control
-                  name="accessKey"
-                  value={copyOfForm === undefined ? form.accessKey : copyOfForm.accessKey}
-                  onChange={onChangeForm}
-                />
-              </Col>
-            :
-              <div></div>
-            }
+            <Col>
+              {copyOfForm === undefined ?
+                <div>
+                  {form.isPublished && form.isPrivate ?
+                    <div>
+                      <Form.Label>
+                        Access Key
+                      </Form.Label>
+                      <Form.Control
+                        name="accessKey"
+                        value={copyOfForm === undefined ? form.accessKey : copyOfForm.accessKey}
+                        onChange={onChangeForm}
+                      />
+                    </div>
+                  :
+                    <div></div>
+                  }
+                </div>
+              :
+                <div>
+                  {copyOfForm.isPublished && copyOfForm.isPrivate ?
+                    <div>
+                      <Form.Label>
+                        Access Key
+                      </Form.Label>
+                      <Form.Control
+                        name="accessKey"
+                        value={copyOfForm === undefined ? form.accessKey : copyOfForm.accessKey}
+                        onChange={onChangeForm}
+                      />
+                    </div>
+                  :
+                    <div></div>
+                  }
+                </div>
+              }
+            </Col>
           </Row>
+          {form.publishedUrl.trim().length != 0 ?
+            <div>
+              <br/>
+              <Row>
+                <Col>
+                  Form URL:
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <p> <a href={form.publishedUrl}> {form.publishedUrl} </a> </p>
+                </Col>
+              </Row>
+            </div>
+          :
+            <div></div>
+          }
         </Modal.Body>
         <Modal.Footer>
           <Button
             variant="success"
+            onClick={savePublishSettings}
+            disabled={!publishChange}
           >
-          {saving ?
+          {publishSaving ?
             <Spinner
               as="span"
               animation="border"
@@ -709,28 +795,6 @@ const FormBuilder = (props) => {
       <Row>
         <Col style={{textAlign: "center"}}>
           <Button variant="info" style={{float: "left"}} onClick={() => setShowOffcanvas(true)}> Layouts </Button>
-          {editingTitle ?
-            <div style={{width: "300px", margin: "0 auto"}}>
-              <Form.Control
-                name="title"
-                value={form.title}
-                onChange={onChangeFormTitle}
-              />
-              <div style={{textAlign: "right", marginTop: "8px"}}>
-                <Button variant="light" size="sm" onClick={makeTitleHeader}>
-                  <img src="/check.png" style={{paddingTop: "3px", paddingBottom: "3px"}} />
-                </Button>
-              </div>
-            </div>
-          :
-            <h4
-              className="form-title"
-              style={{paddingBottom: "8px", display: "inline-block"}}
-              onClick={makeTitleEditable}
-            >
-              {form.title}
-            </h4>
-          }
           <Button
             variant="info"
             style={{float: "right", marginLeft: "10px"}}
@@ -816,8 +880,47 @@ const FormBuilder = (props) => {
         </Col>
         <Col xs={8}>
           <Row>
+            <Col style={{textAlign: "center"}}>
+              {editingTitle ?
+                <div style={{width: "300px", margin: "0 auto"}}>
+                  <Form.Control
+                    name="title"
+                    value={form.title}
+                    onChange={onChangeFormTitle}
+                  />
+                  <div style={{textAlign: "right", marginTop: "8px"}}>
+                    <Button variant="light" size="sm" onClick={makeTitleHeader}>
+                      <img src="/check.png" style={{paddingTop: "3px", paddingBottom: "3px"}} />
+                    </Button>
+                  </div>
+                </div>
+              :
+                <h4
+                  className="form-title"
+                  style={{paddingBottom: "8px", display: "inline-block"}}
+                  onClick={makeTitleEditable}
+                >
+                  {form.title}
+                </h4>
+              }
+            </Col>
+          </Row>
+          <br/>
+          <Row>
             {renderForm()}
           </Row>
+          {form.elements.length != 0 ?
+            <div>
+              <hr/>
+              <Row>
+                <Col style={{textAlign: "center"}}>
+                  <Button variant="success"> Submit </Button>
+                </Col>
+              </Row>
+            </div>
+          :
+            <div></div>
+          }
         </Col>
         <Col xs={2} style={{borderLeft: "1px solid lightGray"}}>
           <p> <strong> Element Editor </strong> </p>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 
 import MySpinner from './MySpinner.js';
 
@@ -7,31 +8,48 @@ import {
   Container,
   Row,
   Col,
-  Modal,
   Form,
   Button,
-  Spinner
+  Spinner,
+  Alert,
+  InputGroup
 } from 'react-bootstrap';
 
 import NotFound from './404.js';
 
-const Preview = (props) => {
+const CONTROLLER = require('../controllers/formsController.js');
 
+const PublishedForm = (props) => {
+  let { formId } = useParams();
+
+  const [form, setForm] = useState();
   const [validated, setValidated] = useState(false);
   const [data, setData] = useState({});
-  const [show, setShow] = useState(false);
+  const [accessGranted, setAccessGranted] = useState();
+  const [accessKeyVal, setAccessKeyVal] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
-    if(props.form !== null && props.form !== undefined) {
-      initData();
-    }
-  }, [props.form]);
+    CONTROLLER.getPublishedForm(formId, (res) => {
+      setForm(res);
+      initData(res);
+    });
+  }, [props.userInfo]);
 
-  const initData = () => {
+  const initData = (res) => {
+    if(res === null || res === undefined) {
+      return;
+    }
     var copy = Object.assign({}, data);
-    for(var i = 0; i < props.form.elements.length; i++) {
-      var element = props.form.elements[i];
+    for(var i = 0; i < res.elements.length; i++) {
+      var element = res.elements[i];
       copy[element.id] = {name: "", value: ""};
+    }
+    if(res.isPrivate) {
+      setAccessGranted(false);
+    }
+    else {
+      setAccessGranted(true);
     }
     setData(copy);
   }
@@ -48,8 +66,8 @@ const Preview = (props) => {
     setValidated(true);
     var copy = Object.assign({}, data);
     var valid = true;
-    for(var i = 0; i < props.form.elements.length; i++) {
-      var element = props.form.elements[i];
+    for(var i = 0; i < form.elements.length; i++) {
+      var element = form.elements[i];
       if(element.required && copy[element.id].value.trim().length == 0) {
         valid = false;
         copy[element.id].value = "";
@@ -60,12 +78,22 @@ const Preview = (props) => {
       return;
     }
     else {
-      setShow(true);
+      // TODO: call google sheets API
+      alert("Success");
+    }
+  }
+
+  const validateAccessKey = () => {
+    if(accessKeyVal === form.accessKey) {
+      setAccessGranted(true);
+    }
+    else {
+      setShowAlert(true);
     }
   }
 
   const renderForm = () => {
-    return props.form.elements.map((metadata, index) => {
+    return form.elements.map((metadata, index) => {
       if(metadata.type === "INPUT") {
         return (
           <Col md={metadata.columns} key={metadata.id + "-col"} className="form-builder-col-spacing">
@@ -153,46 +181,76 @@ const Preview = (props) => {
     });
   }
 
-  if(props.form === undefined || props.form === null) {
+  if(form === null) {
     return (
       <NotFound />
     );
   }
-  return (
-    <div>
-      <Modal show={show} onHide={() => setShow(false)}>
-        <Modal.Header closeButton> Form Submission Successful </Modal.Header>
-        <Modal.Body>
-          The form was filled out properly and accepted.  Since this is only a preview of
-          the form, nothing happened by clicking submit, but by linking a Google Sheet to
-          this form and publishing it, the data from your form submission can be appended
-          directly to your Google Sheet!
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShow(false)}> Got it! </Button>
-        </Modal.Footer>
-      </Modal>
-      <Button variant="secondary" onClick={() => props.onBack(false)}> Back </Button>
-      <br/>
-      <Form onSubmit={handleSubmit} noValidate validated={validated}>
+  if(form === undefined) {
+    return (
+      <MySpinner />
+    );
+  }
+  if(accessGranted === false) {
+    return (
+      <Container style={{width: "40%", textAlign: "center"}}>
+        <h4 style={{marginTop: "100px"}}> Access Key Required to View {"'" + form.title + "'"} </h4>
+        <br/>
         <Row>
-          <Col style={{textAlign: "center"}}>
-            <h2> {props.form.title} </h2>
+          <Col>
+            <InputGroup>
+              <Form.Control
+                name="accessKey"
+                type="password"
+                value={accessKeyVal}
+                placeholder="Enter access key"
+                onChange={(e) => setAccessKeyVal(e.target.value)}
+              />
+              <Button variant="info" onClick={validateAccessKey}> Enter </Button>
+            </InputGroup>
           </Col>
         </Row>
         <br/>
         <Row>
-          {renderForm()}
-        </Row>
-        <hr/>
-        <Row>
-          <Col style={{textAlign: "center"}}>
-            <Button type="submit" variant="success"> Submit </Button>
+          <Col>
+            {showAlert ?
+              <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+                <h5> The access key you entered is invalid. </h5>
+              </Alert>
+            :
+            <div></div>
+            }
           </Col>
         </Row>
-      </Form>
-    </div>
+      </Container>
+    );
+  }
+  return (
+    <Container style={{width: "70%"}}>
+      <Row>
+        <Col>
+          <br/>
+          <Form onSubmit={handleSubmit} noValidate validated={validated}>
+            <Row>
+              <Col style={{textAlign: "center"}}>
+                <h2> {form.title} </h2>
+              </Col>
+            </Row>
+            <br/>
+            <Row>
+              {renderForm()}
+            </Row>
+            <hr/>
+            <Row>
+              <Col style={{textAlign: "center"}}>
+                <Button type="submit" variant="success"> Submit </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
-export default Preview;
+export default PublishedForm;
