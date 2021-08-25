@@ -89,6 +89,7 @@ const Preview = (props) => {
               id={metadata.id}
               value={data[metadata.id] === undefined ? "" : data[metadata.id].value}
               onChange={(e) => onChangeForm(metadata.id, e)}
+              required={metadata.required}
             >
               <option selected value=""> Select </option>
               {metadata.options.map((option, index) => {

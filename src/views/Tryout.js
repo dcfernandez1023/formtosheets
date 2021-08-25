@@ -33,7 +33,7 @@ const SELECT = require("../models/select.js");
 const RADIO = require("../models/radio.js");
 const TEXTAREA = require("../models/textarea.js");
 
-const FormBuilder = (props) => {
+const Tryout = (props) => {
   let { formId } = useParams();
 
   const [form, setForm] = useState();
@@ -53,14 +53,11 @@ const FormBuilder = (props) => {
     if(props.userInfo === null || props.userInfo === undefined) {
       return;
     }
-    CONTROLLER.getForm(formId, props.userInfo.uid, setForm);
+    setForm(Object.assign({}, FORM.form));
   }, [props.userInfo]);
 
   const handleFormChanges = () => {
     setChangesMade(true);
-    window.onbeforeunload = () => {
-      return "You have not saved your changes. Are you sure you want to leave?";
-    };
   }
 
   const onChangeFormTitle = (e) => {
@@ -626,11 +623,6 @@ const FormBuilder = (props) => {
       <MySpinner />
     );
   }
-  if(form.userId !== props.userInfo.uid) {
-    return (
-      <NotFound />
-    );
-  }
   if(preview) {
     return (
       <Container style={{width: "70%"}}>
@@ -802,7 +794,7 @@ const FormBuilder = (props) => {
           <Button
             variant="info"
             style={{float: "right", marginLeft: "10px"}}
-            disabled={!changesMade}
+            disabled={!changesMade || props.tryOut}
             onClick={saveForm}
           >
             {saving && changesMade ?
@@ -820,10 +812,10 @@ const FormBuilder = (props) => {
             Save
           </Button>
           <DropdownButton align="end" variant="info" style={{float: "right"}} title="Actions">
-            <Dropdown.Item> Link a Google Sheet </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut}> Link a Google Sheet </Dropdown.Item>
             <Dropdown.Item onClick={() => setPreview(true)}> Preview Form </Dropdown.Item>
-            <Dropdown.Item onClick={() => setPublishShow(true)}> Publish </Dropdown.Item>
-            <Dropdown.Item onClick={() => setModalShow(true)}> Delete </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut} onClick={() => setPublishShow(true)}> Publish </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut} onClick={() => setModalShow(true)}> Delete </Dropdown.Item>
           </DropdownButton>
         </Col>
       </Row>
@@ -885,6 +877,11 @@ const FormBuilder = (props) => {
         <Col xs={8}>
           <Row>
             <Col style={{textAlign: "center"}}>
+              <p> <i> ⚠️ Features are limited in "Try it out" mode. Sign in to access all features. </i> </p>
+            </Col>
+          </Row>
+          <Row>
+            <Col style={{textAlign: "center"}}>
               {editingTitle ?
                 <div style={{width: "300px", margin: "0 auto"}}>
                   <Form.Control
@@ -943,4 +940,4 @@ const FormBuilder = (props) => {
   );
 }
 
-export default FormBuilder;
+export default Tryout;

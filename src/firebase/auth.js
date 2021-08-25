@@ -6,6 +6,7 @@ const AUTH = firebaseApp.app.auth();
 export function googleSignin() {
 	var provider = new firebase.auth.GoogleAuthProvider();
 	AUTH.signInWithPopup(provider).then(function(result) {
+		window.location.pathname = "/";
 	}).catch(function(error) {
 		console.log(error);
 	});

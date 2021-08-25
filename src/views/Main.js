@@ -24,12 +24,14 @@ import MyForms from './MyForms.js';
 import MySpinner from './MySpinner.js';
 import FormBuilder from './FormBuilder.js';
 import PublishedForm from './PublishedForm.js';
+import Tryout from './Tryout.js';
 
 const AUTH = require('../firebase/auth.js');
 
 const Main = () => {
 
   const[userInfo, setUserInfo] = useState();
+  const [tryOut, setTryOut] = useState(false);
 
   useEffect(() => {
     isUserSignedin();
@@ -42,6 +44,11 @@ const Main = () => {
     AUTH.isUserSignedin(callback);
   }
 
+  const onClickTryOut = () => {
+    setTryOut(true);
+    window.location.pathname="/tryout";
+  }
+
   return (
     <div>
       <Navbar bg="dark" variant="dark">
@@ -51,9 +58,9 @@ const Main = () => {
           </Navbar.Brand>
           <Nav className = "mr-auto">
           </Nav>
-          {userInfo === null || userInfo === undefined ?
+          {userInfo === null ?
             <div>
-              <Button variant="light" style={{marginRight: "12px"}}>
+              <Button variant="light" style={{marginRight: "12px"}} onClick={onClickTryOut}>
                 Try it out
               </Button>
               <Button variant="light" onClick={AUTH.googleSignin}>
@@ -62,43 +69,47 @@ const Main = () => {
             </div>
           :
             <Nav>
-              <Dropdown>
-                <Dropdown.Toggle
-                  variant="light"
-                  style={{margin: "1%", float: "right"}}
-                >
-                  👤
-                </Dropdown.Toggle>
-                <Dropdown.Menu align="end" style={{border: "1px solid gray"}}>
-                  <Row>
-                    <Col>
-                      <ListGroup variant="flush">
-                        <ListGroup.Item>
-                          <Row>
-                            <Col xs ={12} style = {{textAlign: "center"}}>
-                              Signed in as:
-                            </Col>
-                          </Row>
-                          <Row>
-                            <Col style = {{textAlign: "center"}}>
-                              <strong> {userInfo === undefined || userInfo === null ? "" : userInfo.email} </strong>
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                        <ListGroup.Item action onClick = {() => {window.location.pathname = "/changelog"}}>
-                          View Changelog
-                        </ListGroup.Item>
-                        <ListGroup.Item action onClick = {() => {window.open()}}>
-                          Submit Feedback
-                        </ListGroup.Item>
-                        <ListGroup.Item action onClick = {() => {AUTH.signout()}}>
-                          Signout
-                        </ListGroup.Item>
-                      </ListGroup>
-                    </Col>
-                  </Row>
-                </Dropdown.Menu>
-              </Dropdown>
+              {userInfo === undefined ?
+                <div></div>
+              :
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="light"
+                    style={{margin: "1%", float: "right"}}
+                  >
+                    👤
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu align="end" style={{border: "1px solid gray"}}>
+                    <Row>
+                      <Col>
+                        <ListGroup variant="flush">
+                          <ListGroup.Item>
+                            <Row>
+                              <Col xs ={12} style = {{textAlign: "center"}}>
+                                Signed in as:
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col style = {{textAlign: "center"}}>
+                                <strong> {userInfo === undefined || userInfo === null ? "" : userInfo.email} </strong>
+                              </Col>
+                            </Row>
+                          </ListGroup.Item>
+                          <ListGroup.Item action onClick = {() => {window.location.pathname = "/changelog"}}>
+                            View Changelog
+                          </ListGroup.Item>
+                          <ListGroup.Item action onClick = {() => {window.open()}}>
+                            Submit Feedback
+                          </ListGroup.Item>
+                          <ListGroup.Item action onClick = {() => {AUTH.signout()}}>
+                            Signout
+                          </ListGroup.Item>
+                        </ListGroup>
+                      </Col>
+                    </Row>
+                  </Dropdown.Menu>
+                </Dropdown>
+              }
             </Nav>
           }
         </Container>
@@ -107,6 +118,12 @@ const Main = () => {
       <br/>
       <Router>
         <Switch>
+          <Route path="/tryout">
+            <Tryout
+              userInfo={{uid: "tryout"}}
+              tryOut={true}
+            />
+          </Route>
           <Route path="/formBuilder/:formId">
             <FormBuilder
               userInfo={userInfo}
@@ -121,6 +138,7 @@ const Main = () => {
             {userInfo === null ?
               <Login
                 googleSignin={AUTH.googleSignin}
+                onClickTryOut={onClickTryOut}
               />
             :
               <div>

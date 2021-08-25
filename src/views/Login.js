@@ -15,7 +15,7 @@ const Login = (props) => {
   return (
     <Container>
       <Row style={{marginTop: "50px"}}>
-        <Col lg={7}>
+        <Col lg={7} style={{marginTop: "45px"}}>
           <Row>
             <Col>
               <h1 style={{marginBottom: "20px"}}> Build and host a form that writes to your Google Sheet in just a couple of minutes. </h1>
@@ -35,11 +35,15 @@ const Login = (props) => {
                 style={{width: "100%", height: "51px", boxShadow: "rgb(0 0 0 / 25%) 0px 2px 4px 0px", backgroundColor: "rgb(255, 255, 255)"}}
                 variant="light"
                 size="lg"
+                onClick={props.onClickTryOut}
               >
                 Try it out
               </Button>
             </Col>
           </Row>
+        </Col>
+        <Col lg={5} style={{textAlign: "center", marginTop: "20px"}}>
+          <img src="/logo.png" />
         </Col>
       </Row>
       <br/>
