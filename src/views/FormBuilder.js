@@ -820,9 +820,9 @@ const FormBuilder = (props) => {
             Save
           </Button>
           <DropdownButton align="end" variant="info" style={{float: "right"}} title="Actions">
-            <Dropdown.Item> Link a Google Sheet </Dropdown.Item>
             <Dropdown.Item onClick={() => setPreview(true)}> Preview Form </Dropdown.Item>
             <Dropdown.Item onClick={() => setPublishShow(true)}> Publish </Dropdown.Item>
+            <Dropdown.Item> Link a Google Sheet </Dropdown.Item>
             <Dropdown.Item onClick={() => setModalShow(true)}> Delete </Dropdown.Item>
           </DropdownButton>
         </Col>

@@ -812,10 +812,10 @@ const Tryout = (props) => {
             Save
           </Button>
           <DropdownButton align="end" variant="info" style={{float: "right"}} title="Actions">
-            <Dropdown.Item disabled={props.tryOut}> Link a Google Sheet </Dropdown.Item>
             <Dropdown.Item onClick={() => setPreview(true)}> Preview Form </Dropdown.Item>
-            <Dropdown.Item disabled={props.tryOut} onClick={() => setPublishShow(true)}> Publish </Dropdown.Item>
-            <Dropdown.Item disabled={props.tryOut} onClick={() => setModalShow(true)}> Delete </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut} onClick={() => setPublishShow(true)}> Publish <i> (sign in to access) </i> </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut}> Link a Google Sheet <i> (sign in to access) </i> </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut} onClick={() => setModalShow(true)}> Delete <i> (sign in to access) </i> </Dropdown.Item>
           </DropdownButton>
         </Col>
       </Row>

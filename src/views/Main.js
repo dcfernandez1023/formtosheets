@@ -16,7 +16,8 @@ import {
   Nav,
   Dropdown,
   ListGroup,
-  Button
+  Button,
+  Badge
 } from 'react-bootstrap';
 
 import Login from './Login.js';
@@ -55,6 +56,7 @@ const Main = () => {
         <Container fluid>
           <Navbar.Brand href="/">
             formtosheets
+            <Badge style={{marginLeft: "6px"}} pill bg="secondary"> Beta Testing </Badge>
           </Navbar.Brand>
           <Nav className = "mr-auto">
           </Nav>
