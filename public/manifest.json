@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "formtosheets",
+  "name": "formtosheets -- Build and host a form that writes to your Google Sheet",
   "icons": [
     {
       "src": "favicon.ico",
