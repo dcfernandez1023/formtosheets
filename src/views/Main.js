@@ -101,7 +101,7 @@ const Main = () => {
                           <ListGroup.Item action onClick = {() => {window.location.pathname = "/changelog"}}>
                             View Changelog
                           </ListGroup.Item>
-                          <ListGroup.Item action onClick = {() => {window.open("https://formtosheets-9a6d7.web.app/0150b734-1ea9-44a2-9c1e-94052fc5b453", "_self")}}>
+                          <ListGroup.Item action onClick = {() => {window.open("https://formtosheets.com/0150b734-1ea9-44a2-9c1e-94052fc5b453", "_self")}}>
                             Submit Feedback
                           </ListGroup.Item>
                           <ListGroup.Item action onClick = {() => {AUTH.signout()}}>
