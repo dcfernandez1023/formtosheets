@@ -815,6 +815,7 @@ const Tryout = (props) => {
             <Dropdown.Item onClick={() => setPreview(true)}> Preview Form </Dropdown.Item>
             <Dropdown.Item disabled={props.tryOut} onClick={() => setPublishShow(true)}> Publish <i> (sign in to access) </i> </Dropdown.Item>
             <Dropdown.Item disabled={props.tryOut}> Unpublish <i> (sign in to access) </i> </Dropdown.Item>
+            <Dropdown.Item disabled={props.tryOut}> Analytics <i> (sign in to access) </i> </Dropdown.Item>
             <Dropdown.Item disabled={props.tryOut} onClick={() => setModalShow(true)}> Delete <i> (sign in to access) </i> </Dropdown.Item>
           </DropdownButton>
         </Col>

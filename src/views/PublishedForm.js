@@ -85,6 +85,8 @@ const PublishedForm = (props) => {
     else {
       setSubmitting(true);
       CONTROLLER.submitForm(form, values, () => {
+        setAccessGranted(true);
+        setValidated(false);
         setSubmitting(false);
         setShowDone(true);
       })
@@ -129,6 +131,7 @@ const PublishedForm = (props) => {
               id={metadata.id}
               value={data[metadata.id] === undefined ? "" : data[metadata.id].value}
               onChange={(e) => onChangeForm(metadata.id, e)}
+              required={metadata.required}
             >
               <option selected value=""> Select </option>
               {metadata.options.map((option, index) => {

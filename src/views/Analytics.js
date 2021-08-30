@@ -63,7 +63,8 @@ const Analytics = (props) => {
             ✏️ <strong>Last Modified:</strong> {new Date(form.lastModified).toLocaleTimeString()}
           </Col>
         </Row>
-        <h5 style={{textAlign: "center"}}> Form Submissions By Date </h5>
+        <br/>
+        <h5> Form Submissions By Date </h5>
         <div style={{height: "60vh"}}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={getGraphData()}>
