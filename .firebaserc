@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "formtosheets-9a6d7"
+    "default": "formtosheets-9a6d7",
+    "prod": "formtosheets-9a6d7"
   }
 }
