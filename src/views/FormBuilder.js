@@ -4,9 +4,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import MySpinner from './MySpinner.js';
 import Preview from './Preview.js';
+import PublishModal from './PublishModal.js';
+import Analytics from './Analytics.js';
 
 import {
   Container,
+  Badge,
   Row,
   Col,
   Nav,
@@ -48,6 +51,10 @@ const FormBuilder = (props) => {
   const [publishShow, setPublishShow] = useState(false);
   const [publishSaving, setPublishSaving] = useState(false);
   const [publishChange, setPublishChange] = useState(false);
+  const [showG, setShowG] = useState(false);
+  const [showUnpublish, setShowUnpublish] = useState(false);
+  const [unpublishSaving, setUnpublishSaving] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     if(props.userInfo === null || props.userInfo === undefined) {
@@ -643,122 +650,46 @@ const FormBuilder = (props) => {
   }
   return (
     <Container fluid>
-      <Modal show={publishShow} onHide={() => {
+      <PublishModal
+        show={publishShow}
+        form={form}
+        onClose={() => {
           setPublishShow(false);
-          setCopyOfForm();
         }}
-      >
-        <Modal.Header closeButton> Publish Form </Modal.Header>
+      />
+      <Analytics
+        show={showAnalytics}
+        form={form}
+        onClose={() => setShowAnalytics(false)}
+      />
+      <Modal show={showUnpublish} onHide={() => setShowUnpublish(false)}>
+        <Modal.Header closeButton> Unpublish Form </Modal.Header>
         <Modal.Body>
-          <Row>
-            <Col md={6} style={{marginBottom: "8px"}}>
-              <Form.Label> Publish? </Form.Label>
-              <Form.Select
-                value={copyOfForm === undefined ? form.isPublished : copyOfForm.isPublished}
-                onChange={onChangeForm}
-                name="isPublished"
-              >
-                <option value={false}> No </option>
-                <option value={true}> Yes </option>
-              </Form.Select>
-            </Col>
-            <Col md={6} style={{marginBottom: "8px"}}>
-              <Form.Label>
-                Require Access Key?
-                <OverlayTrigger
-                  placement="right"
-                  delay={{ show: 100, hide: 100 }}
-                  overlay={renderTooltip}
-                >
-                  <small> ℹ️ </small>
-                </OverlayTrigger>
-              </Form.Label>
-              <Form.Select
-                value={copyOfForm === undefined ? form.isPrivate : copyOfForm.isPrivate}
-                disabled={copyOfForm === undefined ? !form.isPublished : !copyOfForm.isPublished}
-                onChange={onChangeForm}
-                name="isPrivate"
-              >
-                <option value={false}> No </option>
-                <option value={true}> Yes </option>
-              </Form.Select>
-            </Col>
-            <Col>
-              {copyOfForm === undefined ?
-                <div>
-                  {form.isPublished && form.isPrivate ?
-                    <div>
-                      <Form.Label>
-                        Access Key
-                      </Form.Label>
-                      <Form.Control
-                        name="accessKey"
-                        value={copyOfForm === undefined ? form.accessKey : copyOfForm.accessKey}
-                        onChange={onChangeForm}
-                      />
-                    </div>
-                  :
-                    <div></div>
-                  }
-                </div>
-              :
-                <div>
-                  {copyOfForm.isPublished && copyOfForm.isPrivate ?
-                    <div>
-                      <Form.Label>
-                        Access Key
-                      </Form.Label>
-                      <Form.Control
-                        name="accessKey"
-                        value={copyOfForm === undefined ? form.accessKey : copyOfForm.accessKey}
-                        onChange={onChangeForm}
-                      />
-                    </div>
-                  :
-                    <div></div>
-                  }
-                </div>
-              }
-            </Col>
-          </Row>
-          {form.publishedUrl.trim().length != 0 ?
-            <div>
-              <br/>
-              <Row>
-                <Col>
-                  Form URL:
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <p> <a href={form.publishedUrl}> {form.publishedUrl} </a> </p>
-                </Col>
-              </Row>
-            </div>
-          :
-            <div></div>
-          }
+          <p> By unpublishing this form, it won't be accessible to others publicly. </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="success"
-            onClick={savePublishSettings}
-            disabled={!publishChange}
+          <Button variant="secondary"disabled={unpublishSaving} onClick={() => {
+              setUnpublishSaving(true);
+              CONTROLLER.unpublishForm(form, () => {
+                setUnpublishSaving(false);
+                setShowUnpublish(false);
+              });
+            }}
           >
-          {publishSaving ?
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-              style={{marginRight: "8px"}}
-            />
-          :
-            <div></div>
-          }
-          Save
-         </Button>
+            {unpublishSaving ?
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+                style={{marginRight: "8px"}}
+              />
+            :
+              <div></div>
+            }
+            Unpublish
+          </Button>
         </Modal.Footer>
       </Modal>
       <Modal show={modalShow} onHide={() => setModalShow(false)}>
@@ -822,7 +753,8 @@ const FormBuilder = (props) => {
           <DropdownButton align="end" variant="info" style={{float: "right"}} title="Actions">
             <Dropdown.Item onClick={() => setPreview(true)}> Preview Form </Dropdown.Item>
             <Dropdown.Item onClick={() => setPublishShow(true)}> Publish </Dropdown.Item>
-            <Dropdown.Item> Link a Google Sheet </Dropdown.Item>
+            <Dropdown.Item disabled={!form.isPublished} onClick={() => setShowUnpublish(true)}> Unpublish </Dropdown.Item>
+            <Dropdown.Item onClick={() => setShowAnalytics(true)}> Analytics </Dropdown.Item>
             <Dropdown.Item onClick={() => setModalShow(true)}> Delete </Dropdown.Item>
           </DropdownButton>
         </Col>
@@ -899,13 +831,20 @@ const FormBuilder = (props) => {
                   </div>
                 </div>
               :
-                <h4
-                  className="form-title"
-                  style={{paddingBottom: "8px", display: "inline-block"}}
-                  onClick={makeTitleEditable}
-                >
-                  {form.title}
-                </h4>
+                <div>
+                  <h4
+                    className="form-title"
+                    style={{paddingBottom: "8px", display: "inline-block"}}
+                    onClick={makeTitleEditable}
+                  >
+                    {form.title}
+                  </h4>
+                  {form.isPublished ?
+                    <Badge bg="success" style={{marginLeft: "8px"}} pill> Published </Badge>
+                  :
+                    <div></div>
+                  }
+                </div>
               }
             </Col>
           </Row>

@@ -6,6 +6,7 @@ import MySpinner from './MySpinner.js';
 
 import {
   Container,
+  Modal,
   Row,
   Col,
   Form,
@@ -28,6 +29,8 @@ const PublishedForm = (props) => {
   const [accessGranted, setAccessGranted] = useState();
   const [accessKeyVal, setAccessKeyVal] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [showDone, setShowDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     CONTROLLER.getPublishedForm(formId, (res) => {
@@ -66,20 +69,25 @@ const PublishedForm = (props) => {
     setValidated(true);
     var copy = Object.assign({}, data);
     var valid = true;
+    var values = [];
     for(var i = 0; i < form.elements.length; i++) {
       var element = form.elements[i];
       if(element.required && copy[element.id].value.trim().length == 0) {
         valid = false;
         copy[element.id].value = "";
       }
+      values.push(copy[element.id].value.trim());
     }
     if(!valid) {
       setData(copy);
       return;
     }
     else {
-      // TODO: call google sheets API
-      alert("Success");
+      setSubmitting(true);
+      CONTROLLER.submitForm(form, values, () => {
+        setSubmitting(false);
+        setShowDone(true);
+      })
     }
   }
 
@@ -90,6 +98,10 @@ const PublishedForm = (props) => {
     else {
       setShowAlert(true);
     }
+  }
+
+  const toHome = () => {
+    window.location.pathname = "/";
   }
 
   const renderForm = () => {
@@ -227,6 +239,21 @@ const PublishedForm = (props) => {
   }
   return (
     <Container style={{width: "70%"}}>
+      <Modal show={showDone} backdrop="static">
+        <Modal.Header> Form Submission Successful </Modal.Header>
+        <Modal.Body>
+          <p>Thanks for using formtosheets! Your form submission was successful.</p>
+          <p>Click <strong>Home</strong> below to navigate to the home page, or <strong>Submit Again</strong> to submit this form again.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={toHome}>
+            Home
+          </Button>
+          <Button variant="secondary" onClick={() => window.location.reload(false)}>
+            Submit Again
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Row>
         <Col>
           <br/>
@@ -243,7 +270,21 @@ const PublishedForm = (props) => {
             <hr/>
             <Row>
               <Col style={{textAlign: "center"}}>
-                <Button type="submit" variant="success"> Submit </Button>
+                <Button type="submit" variant="success" disabled={submitting}>
+                  {submitting ?
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      style={{marginRight: "8px"}}
+                    />
+                  :
+                    <div></div>
+                  }
+                  Submit
+               </Button>
               </Col>
             </Row>
           </Form>

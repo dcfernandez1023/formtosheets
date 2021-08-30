@@ -93,7 +93,7 @@ const MyForms = (props) => {
                               Published
                             </Badge>
                             <Badge style={{marginLeft:" 8px"}} pill bg="warning">
-                              {form.submitCount} submissions
+                              {form.submits.length} submissions
                             </Badge>
                           </span>
                         :

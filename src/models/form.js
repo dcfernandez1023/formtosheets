@@ -8,7 +8,8 @@ export const form = {
   isPrivate: false,
   accessKey: "",
   publishedUrl: "",
-  submitCount: 0,
+  gSheetId: "",
+  submits: [],
   elements: []
 };
 
