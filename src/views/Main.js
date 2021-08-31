@@ -63,11 +63,14 @@ const Main = () => {
           </Nav>
           {userInfo === null ?
             <div>
+              <Button variant="light" style={{marginRight: "12px"}} onClick={AUTH.googleSignin}>
+                Sign in
+              </Button>
               <Button variant="light" style={{marginRight: "12px"}} onClick={onClickTryOut}>
                 Try it out
               </Button>
-              <Button variant="light" onClick={AUTH.googleSignin}>
-                Sign in
+              <Button variant="light" onClick={() => {window.open("https://formtosheets.com/0150b734-1ea9-44a2-9c1e-94052fc5b453", "_self")} }>
+                Give Feedback
               </Button>
             </div>
           :

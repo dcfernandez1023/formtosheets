@@ -78,6 +78,7 @@ const MyForms = (props) => {
           <Col>
             <ListGroup>
               {forms.map((form) => {
+                console.log(form);
                 return (
                   <ListGroup.Item
                      key={form.id}
