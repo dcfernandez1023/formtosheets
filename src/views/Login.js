@@ -10,12 +10,13 @@ import {
 } from 'react-bootstrap';
 
 import GoogleButton from 'react-google-button';
+import ReactPlayer from 'react-player/youtube';
 
 const Login = (props) => {
   return (
     <Container>
       <Row style={{marginTop: "50px"}}>
-        <Col lg={7} style={{marginTop: "45px"}}>
+        <Col lg={6} style={{marginTop: "45px"}}>
           <Row>
             <Col>
               <h1 style={{marginBottom: "20px"}}> Build and host a form that writes to your Google Sheet in just a couple of minutes. </h1>
@@ -42,8 +43,13 @@ const Login = (props) => {
             </Col>
           </Row>
         </Col>
-        <Col lg={5} style={{textAlign: "center", marginTop: "20px"}}>
-          <img src="/logo.png" />
+        <Col lg={6} style={{textAlign: "center", marginTop: "20px"}}>
+          <Col>
+            <ReactPlayer
+              url='https://www.youtube.com/watch?v=VpJTyvgQMoo'
+              controls={true}
+            />
+          </Col>
         </Col>
       </Row>
       <br/>
@@ -85,6 +91,7 @@ const Login = (props) => {
         </Carousel>
         </Col>
       </Row>
+      <br/>
       <div style={{height:"20vh"}}></div>
     </Container>
   );
